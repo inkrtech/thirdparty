@@ -1,7 +1,7 @@
 package oauth
 
 import (
-	"github.com/libra82/thirdparty/utils"
+	"github.com/inkrtech/thirdparty/utils"
 )
 
 //基本配置

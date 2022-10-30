@@ -2,8 +2,8 @@ package oauth
 
 import (
 	"errors"
-	"github.com/libra82/thirdparty/result"
-	"github.com/libra82/thirdparty/utils"
+	"github.com/inkrtech/thirdparty/result"
+	"github.com/inkrtech/thirdparty/utils"
 	"strconv"
 )
 

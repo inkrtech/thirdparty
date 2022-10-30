@@ -3,8 +3,8 @@ package oauth
 import (
 	"encoding/json"
 	"errors"
-	"github.com/libra82/thirdparty/result"
-	"github.com/libra82/thirdparty/utils"
+	"github.com/inkrtech/thirdparty/result"
+	"github.com/inkrtech/thirdparty/utils"
 	"github.com/xlstudio/wxbizdatacrypt"
 )
 

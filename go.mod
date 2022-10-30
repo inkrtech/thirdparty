@@ -1,4 +1,4 @@
-module github.com/libra82/thirdparty
+module github.com/inkrtech/thirdparty
 
 go 1.13
 

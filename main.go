@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/libra82/thirdparty/oauth"
+	"github.com/inkrtech/thirdparty/oauth"
 )
 
 func main() {

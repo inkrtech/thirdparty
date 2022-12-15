@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-//微信授权登录（第三方应用）
+// 微信授权登录（第三方应用）
 type AuthWxWechat struct {
 	BaseRequest
 }
@@ -18,12 +18,13 @@ func NewAuthWxWechat(conf *AuthConfig) *AuthWxWechat {
 
 	authRequest.authorizeUrl = "https://open.weixin.qq.com/connect/qrconnect"
 	authRequest.TokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token"
+	authRequest.RefreshTokenUrl = "https://api.weixin.qq.com/sns/oauth2/refresh_token"
 	authRequest.userInfoUrl = "https://api.weixin.qq.com/sns/userinfo"
 
 	return authRequest
 }
 
-//获取登录地址
+// 获取登录地址
 func (a *AuthWxWechat) GetRedirectUrl(state string) (*result.CodeResult, error) {
 	url := utils.NewUrlBuilder(a.authorizeUrl).
 		AddParam("response_type", "code").
@@ -40,7 +41,7 @@ func (a *AuthWxWechat) GetRedirectUrl(state string) (*result.CodeResult, error) 
 	return nil, nil
 }
 
-//获取token
+// 获取token
 func (a *AuthWxWechat) GetWebAccessToken(code string) (*result.TokenResult, error) {
 	url := utils.NewUrlBuilder(a.TokenUrl).
 		AddParam("grant_type", "authorization_code").
@@ -73,7 +74,7 @@ func (a *AuthWxWechat) GetWebAccessToken(code string) (*result.TokenResult, erro
 	return token, nil
 }
 
-//通过移动应用获取AccessToken
+// 通过移动应用获取AccessToken
 func (a *AuthWxWechat) GetAppAccessToken(code string) (*result.TokenResult, error) {
 	url := utils.NewUrlBuilder(a.TokenUrl).
 		AddParam("grant_type", "authorization_code").
@@ -105,7 +106,36 @@ func (a *AuthWxWechat) GetAppAccessToken(code string) (*result.TokenResult, erro
 	return token, nil
 }
 
-//获取第三方用户信息
+// 刷新 access_token
+func (a *AuthWxWechat) GetAppRefreshToken(refreshToken string) (*result.TokenResult, error) {
+	url := utils.NewUrlBuilder(a.RefreshTokenUrl).
+		AddParam("grant_type", "refresh_token").
+		AddParam("refresh_token", refreshToken).
+		AddParam("appid", a.config.ClientId).
+		Build()
+
+	body, err := utils.Post(url)
+	if err != nil {
+		return nil, err
+	}
+	m := utils.JsonToMSS(body)
+	if _, ok := m["errcode"]; ok {
+		return nil, errors.New(m["errmsg"])
+	}
+	token := &result.TokenResult{
+		AccessToken:  m["access_token"],
+		RefreshToken: m["refresh_token"],
+		ExpireIn:     m["expires_in"],
+		OpenId:       m["openid"],
+		Scope:        m["scope"],
+	}
+	if token.AccessToken == "" {
+		return nil, errors.New("获取AccessToken数据为空！")
+	}
+	return token, nil
+}
+
+// 获取第三方用户信息
 func (a *AuthWxWechat) GetUserInfo(openId string, accessToken string) (*result.UserResult, error) {
 	url := utils.NewUrlBuilder(a.userInfoUrl).
 		AddParam("openid", openId).

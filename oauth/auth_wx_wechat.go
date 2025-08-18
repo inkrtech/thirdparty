@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-//微信授权登录（第三方应用）
+// 微信授权登录（第三方应用）
 type AuthWxWechat struct {
 	BaseRequest
 }
@@ -23,7 +23,7 @@ func NewAuthWxWechat(conf *AuthConfig) *AuthWxWechat {
 	return authRequest
 }
 
-//获取登录地址
+// 获取登录地址
 func (a *AuthWxWechat) GetRedirectUrl(state string) (*result.CodeResult, error) {
 	url := utils.NewUrlBuilder(a.authorizeUrl).
 		AddParam("response_type", "code").
@@ -40,7 +40,7 @@ func (a *AuthWxWechat) GetRedirectUrl(state string) (*result.CodeResult, error) 
 	return nil, nil
 }
 
-//获取token
+// 获取token
 func (a *AuthWxWechat) GetWebAccessToken(code string) (*result.TokenResult, error) {
 	url := utils.NewUrlBuilder(a.TokenUrl).
 		AddParam("grant_type", "authorization_code").
@@ -59,13 +59,14 @@ func (a *AuthWxWechat) GetWebAccessToken(code string) (*result.TokenResult, erro
 		return nil, errors.New(m["errmsg"])
 	}
 	token := &result.TokenResult{
-		AccessToken:  m["access_token"],
-		RefreshToken: m["refresh_token"],
-		ExpireIn:     m["expires_in"],
-		OpenId:       m["openid"],
-		UnionId:      m["unionid"],
-		Scope:        m["scope"],
-		TokenType:    m["token_type"],
+		AccessToken:    m["access_token"],
+		RefreshToken:   m["refresh_token"],
+		ExpireIn:       m["expires_in"],
+		OpenId:         m["openid"],
+		UnionId:        m["unionid"],
+		Scope:          m["scope"],
+		TokenType:      m["token_type"],
+		IsSnapshotUser: m["is_snapshotuser"],
 	}
 	if token.AccessToken == "" {
 		return nil, errors.New("获取AccessToken数据为空！")
@@ -73,7 +74,7 @@ func (a *AuthWxWechat) GetWebAccessToken(code string) (*result.TokenResult, erro
 	return token, nil
 }
 
-//通过移动应用获取AccessToken
+// 通过移动应用获取AccessToken
 func (a *AuthWxWechat) GetAppAccessToken(code string) (*result.TokenResult, error) {
 	url := utils.NewUrlBuilder(a.TokenUrl).
 		AddParam("grant_type", "authorization_code").
@@ -91,13 +92,14 @@ func (a *AuthWxWechat) GetAppAccessToken(code string) (*result.TokenResult, erro
 		return nil, errors.New(m["errmsg"])
 	}
 	token := &result.TokenResult{
-		AccessToken:  m["access_token"],
-		RefreshToken: m["refresh_token"],
-		ExpireIn:     m["expires_in"],
-		OpenId:       m["openid"],
-		UnionId:      m["unionid"],
-		Scope:        m["scope"],
-		TokenType:    m["token_type"],
+		AccessToken:    m["access_token"],
+		RefreshToken:   m["refresh_token"],
+		ExpireIn:       m["expires_in"],
+		OpenId:         m["openid"],
+		UnionId:        m["unionid"],
+		Scope:          m["scope"],
+		TokenType:      m["token_type"],
+		IsSnapshotUser: m["is_snapshotuser"],
 	}
 	if token.AccessToken == "" {
 		return nil, errors.New("获取AccessToken数据为空！")
@@ -105,7 +107,7 @@ func (a *AuthWxWechat) GetAppAccessToken(code string) (*result.TokenResult, erro
 	return token, nil
 }
 
-//获取第三方用户信息
+// 获取第三方用户信息
 func (a *AuthWxWechat) GetUserInfo(openId string, accessToken string) (*result.UserResult, error) {
 	url := utils.NewUrlBuilder(a.userInfoUrl).
 		AddParam("openid", openId).

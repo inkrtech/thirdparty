@@ -18,6 +18,7 @@ func NewAuthWxWechat(conf *AuthConfig) *AuthWxWechat {
 
 	authRequest.authorizeUrl = "https://open.weixin.qq.com/connect/qrconnect"
 	authRequest.TokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token"
+	authRequest.RefreshTokenUrl = "https://api.weixin.qq.com/sns/oauth2/refresh_token"
 	authRequest.userInfoUrl = "https://api.weixin.qq.com/sns/userinfo"
 
 	return authRequest
@@ -100,6 +101,35 @@ func (a *AuthWxWechat) GetAppAccessToken(code string) (*result.TokenResult, erro
 		Scope:          m["scope"],
 		TokenType:      m["token_type"],
 		IsSnapshotUser: m["is_snapshotuser"],
+	}
+	if token.AccessToken == "" {
+		return nil, errors.New("获取AccessToken数据为空！")
+	}
+	return token, nil
+}
+
+// 刷新 access_token
+func (a *AuthWxWechat) GetAppRefreshToken(refreshToken string) (*result.TokenResult, error) {
+	url := utils.NewUrlBuilder(a.RefreshTokenUrl).
+		AddParam("grant_type", "refresh_token").
+		AddParam("refresh_token", refreshToken).
+		AddParam("appid", a.config.ClientId).
+		Build()
+
+	body, err := utils.Post(url)
+	if err != nil {
+		return nil, err
+	}
+	m := utils.JsonToMSS(body)
+	if _, ok := m["errcode"]; ok {
+		return nil, errors.New(m["errmsg"])
+	}
+	token := &result.TokenResult{
+		AccessToken:  m["access_token"],
+		RefreshToken: m["refresh_token"],
+		ExpireIn:     m["expires_in"],
+		OpenId:       m["openid"],
+		Scope:        m["scope"],
 	}
 	if token.AccessToken == "" {
 		return nil, errors.New("获取AccessToken数据为空！")
